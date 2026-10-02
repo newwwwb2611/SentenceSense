@@ -125,7 +125,7 @@ select{background:var(--bg3);border:1px solid var(--border);color:var(--muted);p
 <div id="fb" class="bub"><div id="br" class="bub-role"></div><div id="be" class="bub-exp"></div><div id="bc" class="bub-con"></div></div>
 
 <div id="am" class="mo"><div class="mod">
-  <h2>API Key</h2><p>Enter your free Gemini API key to analyze text.</p>
+  <h2>Ready!</h2><p>No API key needed. Just paste and click Break it Down!</p>
   <input type="password" id="ak" placeholder="AIzaSy...">
   <div style="display:flex;justify-content:flex-end;align-items:center;gap:1rem">
     <a href="https://aistudio.google.com/app/apikey" target="_blank" style="color:var(--accent);text-decoration:none;font-size:.85rem">Get free key</a>
@@ -171,7 +171,7 @@ function nextC(){if(ci<chunks.length-1){ci++;cc=chunks[ci];go()}}
 async function go(){
   var text=document.getElementById('ti').value.trim();if(!text)return;
   if(!cc){chunks=chunkText(text);ci=0;cc=chunks[0]}
-  if(!key){document.getElementById('am').classList.add('on');return}
+  // Server handles API key
   document.getElementById('out').style.display='none';
   document.getElementById('ld').style.display='block';
   document.getElementById('bb').disabled=true;document.getElementById('bb').textContent='Working...';
@@ -184,7 +184,7 @@ async function go(){
     var m=uniq[i];document.getElementById('lt').textContent='Trying '+m+'...';
     try{
       var ctrl=new AbortController();var tid=setTimeout(function(){ctrl.abort()},90000);
-      var r=await fetch('https://generativelanguage.googleapis.com/v1beta/interactions',{method:'POST',signal:ctrl.signal,headers:{'Content-Type':'application/json','x-goog-api-key':key},body:JSON.stringify({model:m,system_instruction:SP,input:'Analyze:\n\n'+cc,generation_config:{temperature:0.3,max_output_tokens:8192},response_format:{type:"text",mime_type:"application/json"}})});
+      var r=await fetch('/api/analyze',{method:'POST',signal:ctrl.signal,headers:{'Content-Type':'application/json',},body:JSON.stringify({model:m,system_instruction:SP,input:'Analyze:\n\n'+cc,generation_config:{temperature:0.3,max_output_tokens:8192},response_format:{type:"text",mime_type:"application/json"}})});
       clearTimeout(tid);
       if(!r.ok){var e=await r.json().catch(function(){return{}});err=e.error?e.error.message:'HTTP '+r.status;continue}
       var d=await r.json();var raw='';
